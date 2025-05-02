@@ -6,8 +6,9 @@ use App\Models\UserModel;
 use App\Core\Flash;
 use App\Core\Redirect;
 use App\Core\View;
+use App\Core\BaseController;
 
-class UserController
+class UserController extends BaseController
 {
     protected $userModel;
 
@@ -41,7 +42,7 @@ class UserController
         ];
 
         try {
-            $errors = $this->validate($data, 'create');
+            $errors = $this->validate($data, 'create', $this->userModel);
             if (empty($errors)) {
                 $uuid = uniqid();
                 $data['name'] = htmlspecialchars($data['name']);
@@ -78,7 +79,7 @@ class UserController
         ];
 
         try {
-            $errors = $this->validate($data);
+            $errors = $this->validate($data, 'update', $this->userModel);
             if (empty($errors)) {
                 $data['name'] = htmlspecialchars($data['name']);
                 $data['email'] = htmlspecialchars($data['email']);
@@ -115,28 +116,5 @@ class UserController
             $user['email'] = htmlspecialchars($user['email']);
         }
         View::render('user/show', ['user' => $user]);
-    }
-
-    protected function validate($data, $action = 'update')
-    {
-        $errors = [];
-
-        if (empty($data['name'])) {
-            $errors[] = 'Name is required.';
-        }
-
-        if (empty($data['email'])) {
-            $errors[] = 'Email is required.';
-        } elseif (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-            $errors[] = 'Invalid email format.';
-        } elseif ($action=='create' && $this->userModel->emailExists($data['email'])) {
-            $errors[] = 'Email already exists.';
-        }
-
-        if (empty($data['password'])) {
-            $errors[] = 'Password is required.';
-        }
-
-        return $errors;
     }
 }

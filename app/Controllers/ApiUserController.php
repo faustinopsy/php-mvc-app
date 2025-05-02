@@ -3,11 +3,9 @@
 namespace App\Controllers;
 
 use App\Models\UserModel;
-use App\Core\Flash;
-use App\Core\Redirect;
-use App\Core\View;
+use App\Core\BaseController;
 
-class ApiUserController
+class ApiUserController extends BaseController
 {
     protected $userModel;
 
@@ -24,15 +22,12 @@ class ApiUserController
                 $user['name'] = htmlspecialchars($user['name']);
                 $user['email'] = htmlspecialchars($user['email']);
                 unset($user['password']);
-                header('Content-Type: application/json');
-                echo json_encode($user, JSON_PRETTY_PRINT);
+                $this->jsonResponse(200, $user);
             } else {
-                http_response_code(404);
-                echo json_encode(['error' => 'User not found']);
+                $this->jsonResponse(404, ['error' => 'User not found']);
             }
         } catch (\Exception $e) {
-            http_response_code(500);
-            echo json_encode(['error' => 'An error occurred: ' . $e->getMessage()]);
+            $this->jsonResponse(500, ['error' => 'An error occurred: ' . $e->getMessage()]);
         }
     }
 
@@ -45,53 +40,32 @@ class ApiUserController
                 $user['email'] = htmlspecialchars($user['email']);
                 unset($user['password']);
             }
-            header('Content-Type: application/json');
-            echo json_encode($users, JSON_PRETTY_PRINT);
+            $this->jsonResponse(200, $users);
         } catch (\Exception $e) {
-            http_response_code(500);
-            echo json_encode(['error' => 'An error occurred: ' . $e->getMessage()]);
+            $this->jsonResponse(500, ['error' => 'An error occurred: ' . $e->getMessage()]);
         }
     }
 
     public function apiCreateUser()
     {
-        $data = json_decode(file_get_contents('php://input'), true);
-        try {
-            $errors = $this->validate($data,'create');
-            if (empty($errors)) {
-                $uuid = uniqid();
-                $data['name'] = htmlspecialchars($data['name']);
-                $data['email'] = htmlspecialchars($data['email']);
-                $this->userModel->createUser($uuid, $data['name'], $data['email'], $data['password']);
-                http_response_code(201);
-                header('Content-Type: application/json');
-                echo json_encode(['success' => 'User created successfully']);
-            } else {
-                http_response_code(400);
-                echo json_encode(['error' => implode(' ', $errors)]);
-            }
+        try {  
+            $data = $this->extractAndValidateData('create', null ,$this->userModel);
+            $uuid = uniqid();
+            $this->userModel->createUser($uuid, $data['name'], $data['email'], $data['password']);
+            $this->jsonResponse(201, ['success' => 'User created successfully']);
         } catch (\Exception $e) {
-            http_response_code(500);
-            echo json_encode(['error' => 'An error occurred: ' . $e->getMessage()]);
+            $this->jsonResponse(400, ['error' => $e->getMessage()]);
         }
     }
 
     public function apiUpdateUser($id)
     {
-        $data = json_decode(file_get_contents('php://input'), true);
         try {
-            $errors = $this->validate($data);
-            if (empty($errors)) {
-                $this->userModel->updateUser($id, $data['name'], $data['email'], $data['password']);
-                header('Content-Type: application/json');
-                echo json_encode(['success' => 'User updated successfully']);
-            } else {
-                http_response_code(400);
-                echo json_encode(['error' => implode(' ', $errors)]);
-            }
+            $data = $this->extractAndValidateData('update');
+            $this->userModel->updateUser($id, $data['name'], $data['email'], $data['password']);
+            $this->jsonResponse(200, ['success' => 'User updated successfully']);
         } catch (\Exception $e) {
-            http_response_code(500);
-            echo json_encode(['error' => 'An error occurred: ' . $e->getMessage()]);
+            $this->jsonResponse(400, ['error' => $e->getMessage()]);
         }
     }
 
@@ -99,35 +73,9 @@ class ApiUserController
     {
         try {
             $this->userModel->deleteUser($id);
-            header('Content-Type: application/json');
-            echo json_encode(['success' => 'User deleted successfully']);
+            $this->jsonResponse(200, ['success' => 'User deleted successfully']);
         } catch (\Exception $e) {
-            http_response_code(500);
-            echo json_encode(['error' => 'An error occurred: ' . $e->getMessage()]);
+            $this->jsonResponse(500, ['error' => 'An error occurred: ' . $e->getMessage()]);
         }
-    }
-
-    protected function validate($data, $action = 'update')
-    {
-        $errors = [];
-
-        if (empty($data['name'])) {
-            $errors[] = 'Name is required.';
-        }
-
-        if (empty($data['email'])) {
-            $errors[] = 'Email is required.';
-        } elseif (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-            $errors[] = 'Invalid email format.';
-        }elseif ($action=='create' && $this->userModel->emailExists($data['email'])) {
-            $errors[] = 'Email already exists.';
-        }
-        
-
-        if (empty($data['password'])) {
-            $errors[] = 'Password is required.';
-        }
-
-        return $errors;
     }
 }
