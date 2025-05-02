@@ -27,11 +27,12 @@ class UserModel {
     }
 
     public function createUser($uuid, $name, $email, $password) {
+        $password = password_hash($password, PASSWORD_DEFAULT);
         $stmt = $this->db->prepare("INSERT INTO users (uuid, name, email, password) VALUES (:uuid, :name, :email, :password)");
         $stmt->bindParam(':uuid', $uuid);
         $stmt->bindParam(':name', $name);
         $stmt->bindParam(':email', $email);
-        $stmt->bindParam(':password', password_hash($password, PASSWORD_DEFAULT));
+        $stmt->bindParam(':password', $password);
         return $stmt->execute();
     }
 
@@ -42,17 +43,18 @@ class UserModel {
     
     public function getUser($uuid) {
         $stmt = $this->db->prepare("SELECT * FROM users WHERE uuid = :uuid");
-        $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR); // Certifique-se de que $uuid é uma variável
+        $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     public function updateUser($uuid, $name, $email, $password) {
+        $password = password_hash($password, PASSWORD_DEFAULT);
         $stmt = $this->db->prepare("UPDATE users SET name = :name, email = :email, password = :password WHERE uuid = :uuid");
         $stmt->bindParam(':uuid', $uuid);
         $stmt->bindParam(':name', $name);
         $stmt->bindParam(':email', $email);
-        $stmt->bindParam(':password', password_hash($password, PASSWORD_DEFAULT));
+        $stmt->bindParam(':password', $password);
         return $stmt->execute();
     }
 
