@@ -3,7 +3,6 @@
 namespace App\Controllers;
 
 use App\Models\UserModel;
-use App\Core\Flash;
 use App\Core\Redirect;
 use App\Core\View;
 use App\Core\BaseController;
@@ -48,15 +47,12 @@ class UserController extends BaseController
                 $data['name'] = htmlspecialchars($data['name']);
                 $data['email'] = htmlspecialchars($data['email']);
                 $this->userModel->createUser($uuid, $data['name'], $data['email'], $data['password']);
-                Flash::set('success', 'User created successfully.');
-                Redirect::to('/');
+                Redirect::with('/', ['success' => 'User created successfully.']);
             } else {
-                Flash::set('error', implode(' ', $errors));
-                Redirect::to('/user/create');
+                Redirect::with('/user/create', ['error' => $errors[0]]);
             }
         } catch (\Exception $e) {
-            Flash::set('error', 'An error occurred: ' . $e->getMessage());
-            Redirect::to('/user/create');
+            Redirect::with('/user/create', ['error' => 'An error occurred: ' . $e->getMessage()]);
         }
     }
 
@@ -84,15 +80,12 @@ class UserController extends BaseController
                 $data['name'] = htmlspecialchars($data['name']);
                 $data['email'] = htmlspecialchars($data['email']);
                 $this->userModel->updateUser($id, $data['name'], $data['email'], $data['password']);
-                Flash::set('success', 'User updated successfully.');
-                Redirect::to('/');
+                Redirect::with('/', ['success' => 'User updated successfully.']);
             } else {
-                Flash::set('error', implode(' ', $errors));
-                Redirect::to("/user/edit/$id");
+                Redirect::with("/user/edit/$id", ['error' => 'Validation failed.']);
             }
         } catch (\Exception $e) {
-            Flash::set('error', 'An error occurred: ' . $e->getMessage());
-            Redirect::to("/user/edit/$id");
+            Redirect::with("/user/edit/$id", ['error' => 'An error occurred: ' . $e->getMessage()]);
         }
     }
 
@@ -100,11 +93,9 @@ class UserController extends BaseController
     {
         try {
             $this->userModel->deleteUser($id);
-            Flash::set('success', 'User deleted successfully.');
-            Redirect::to('/');
+            Redirect::with('/',['success', 'User deleted successfully.']);
         } catch (\Exception $e) {
-            Flash::set('error', 'An error occurred: ' . $e->getMessage());
-            Redirect::to('/');
+            Redirect::with('/', ['error' => 'An error occurred: ' . $e->getMessage()]);
         }
     }
 
