@@ -172,6 +172,12 @@ A classe `UserValidator` é responsável por validar os dados de entrada relacio
 - Acesse o arquivo `public/index.php` no navegador para iniciar a aplicação.
 - Utilize as rotas fornecidas para gerenciar usuários e interagir com a aplicação.
 
+- Se o php estiver setado nas variáveis de ambiente basta iniciar o servidor embutido dentro da pasta do projeto:
+
+```
+php -S localhost:8080 -t public
+```
+
 ---
 
 ## Contribuindo

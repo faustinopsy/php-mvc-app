@@ -4,6 +4,8 @@ session_start();
 require_once '../vendor/autoload.php';
 require_once './routes.php';
 use App\core\Router;
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__. '/../');
+$dotenv->load();
 
 $route = $router->resolve($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
 

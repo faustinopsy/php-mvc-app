@@ -8,7 +8,7 @@ class Redirect {
     }
 
     public static function with($location, $message) {
-        Flash::set('flash_message', $message);
+        Flash::set($_ENV['FLASH_MESSAGE_KEY'], $message);
         self::to($location);
     }
 

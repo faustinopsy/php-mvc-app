@@ -1,7 +1,7 @@
 <div class="container">
 <h1>Criar Usuário</h1>
 
-<?php if ($error = \App\Core\Flash::get('flash_message')): ?>
+<?php if ($error = \App\Core\Flash::get($_ENV['FLASH_MESSAGE_KEY'])): ?>
     <div class="error">
         <?php echo $error; ?>
     </div>
