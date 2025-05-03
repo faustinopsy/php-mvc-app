@@ -4,14 +4,16 @@ namespace App\Controllers;
 
 use App\Models\UserModel;
 use App\Core\BaseController;
-
+use App\Validators\UserValidator;
 class ApiUserController extends BaseController
 {
     protected $userModel;
+    protected $userValidator;
 
     public function __construct()
     {
         $this->userModel = new UserModel();
+        $this->userValidator = new UserValidator($this->userModel);
     }
 
     public function apiGetUser($id)
@@ -48,10 +50,11 @@ class ApiUserController extends BaseController
 
     public function apiCreateUser()
     {
-        try {  
-            $data = $this->extractAndValidateData('create', null ,$this->userModel);
+        try {
+            $data = $this->extractAndValidateData($this->userValidator, false);
             $uuid = uniqid();
-            $this->userModel->createUser($uuid, $data['name'], $data['email'], $data['password']);
+            $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
+            $this->userModel->createUser($uuid, $data['name'], $data['email'], $hashedPassword);
             $this->jsonResponse(201, ['success' => 'User created successfully']);
         } catch (\Exception $e) {
             $this->jsonResponse(400, ['error' => $e->getMessage()]);
@@ -61,7 +64,7 @@ class ApiUserController extends BaseController
     public function apiUpdateUser($id)
     {
         try {
-            $data = $this->extractAndValidateData('update');
+            $data = $this->extractAndValidateData($this->userValidator, true);
             $this->userModel->updateUser($id, $data['name'], $data['email'], $data['password']);
             $this->jsonResponse(200, ['success' => 'User updated successfully']);
         } catch (\Exception $e) {

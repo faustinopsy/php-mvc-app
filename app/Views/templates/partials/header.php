@@ -12,10 +12,9 @@
         <h1>Welcome to My PHP MVC App</h1>
         <nav>
             <ul>
-                <li><a href="/">Home</a></li>
-                <li><a href="/users">Users</a></li>
+                <li><a href="/">Users</a></li>
                 <li><a href="/login">Login</a></li>
-                <li><a href="/register">Register</a></li>
+                <li><a href="/user/create">Register</a></li>
             </ul>
         </nav>
     </header>

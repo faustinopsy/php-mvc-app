@@ -4,9 +4,9 @@ namespace App\Core;
 
 use Exception;
 
-class BaseController
+abstract class BaseController
 {
-    protected function extractAndValidateData($action, $data = null, $funcao=null)
+    protected function extractAndValidateData($validator, $isUpdate=false ,$data = null)
     {
         if (!$data) {
             $data = json_decode(file_get_contents('php://input'), true);
@@ -16,41 +16,17 @@ class BaseController
             throw new Exception('Invalid JSON input');
         }
 
-        $errors = $this->validate($data, $action, $funcao);
+        $errors = $validator->validate($data, $isUpdate);
 
         if (!empty($errors)) {
             throw new Exception(implode(' ', $errors));
         }
 
-        $data['name'] = htmlspecialchars($data['name']);
-        $data['email'] = htmlspecialchars($data['email']);
+        foreach ($data as $key => $value) {
+            $data[$key] = htmlspecialchars($value);
+        }
 
         return $data;
-    }
-
-    protected function validate($data, $action = 'update', $funcao=null)
-    {
-        $errors = [];
-       
-        if (empty($data['name'])) {
-            $errors[] = 'Name is required.';
-        }
-
-        if (empty($data['email'])) {
-            $errors[] = 'Email is required.';
-        } elseif (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-            $errors[] = 'Invalid email format.';
-        }
-
-        if ($action === 'create' && $funcao->emailExists($data['email'])) {
-            $errors[] = 'Email already exists.';
-        }
-
-        if (empty($data['password'])) {
-            $errors[] = 'Password is required.';
-        }
-
-        return $errors;
     }
 
     protected function jsonResponse($statusCode, $data)

@@ -6,14 +6,17 @@ use App\Models\UserModel;
 use App\Core\Redirect;
 use App\Core\View;
 use App\Core\BaseController;
+use App\Validators\UserValidator;
 
 class UserController extends BaseController
 {
     protected $userModel;
+    protected $userValidator;
 
     public function __construct()
     {
         $this->userModel = new UserModel();
+        $this->userValidator = new UserValidator($this->userModel);
     }
 
     public function index()
@@ -34,25 +37,14 @@ class UserController extends BaseController
 
     public function store()
     {
-        $data = [
-            'name' => $_POST['name'] ?? '',
-            'email' => $_POST['email'] ?? '',
-            'password' => $_POST['password'] ?? ''
-        ];
-
         try {
-            $errors = $this->validate($data, 'create', $this->userModel);
-            if (empty($errors)) {
-                $uuid = uniqid();
-                $data['name'] = htmlspecialchars($data['name']);
-                $data['email'] = htmlspecialchars($data['email']);
-                $this->userModel->createUser($uuid, $data['name'], $data['email'], $data['password']);
-                Redirect::with('/', ['success' => 'User created successfully.']);
-            } else {
-                Redirect::with('/user/create', ['error' => $errors[0]]);
-            }
+            $data = $this->extractAndValidateData($this->userValidator, false);
+            $uuid = uniqid();
+            $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
+            $this->userModel->createUser($uuid, $data['name'], $data['email'], $hashedPassword);
+            Redirect::with('/', ['success' => 'User created successfully.']);
         } catch (\Exception $e) {
-            Redirect::with('/user/create', ['error' => 'An error occurred: ' . $e->getMessage()]);
+            Redirect::with('/user/create', ['error' => $e->getMessage()]);
         }
     }
 
@@ -68,24 +60,13 @@ class UserController extends BaseController
 
     public function update($id)
     {
-        $data = [
-            'name' => $_POST['name'] ?? '',
-            'email' => $_POST['email'] ?? '',
-            'password' => $_POST['password'] ?? ''
-        ];
-
         try {
-            $errors = $this->validate($data, 'update', $this->userModel);
-            if (empty($errors)) {
-                $data['name'] = htmlspecialchars($data['name']);
-                $data['email'] = htmlspecialchars($data['email']);
-                $this->userModel->updateUser($id, $data['name'], $data['email'], $data['password']);
-                Redirect::with('/', ['success' => 'User updated successfully.']);
-            } else {
-                Redirect::with("/user/edit/$id", ['error' => 'Validation failed.']);
-            }
+            $data = $this->extractAndValidateData($this->userValidator, true);
+            $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
+            $this->userModel->updateUser($id, $data['name'], $data['email'], $hashedPassword);
+            Redirect::with('/', ['success' => 'User updated successfully.']);
         } catch (\Exception $e) {
-            Redirect::with("/user/edit/$id", ['error' => 'An error occurred: ' . $e->getMessage()]);
+            Redirect::with("/user/edit/$id", ['error' => $e->getMessage()]);
         }
     }
 
