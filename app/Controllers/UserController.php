@@ -40,8 +40,7 @@ class UserController extends BaseController
         try {
             $data = $this->extractAndValidateData($this->userValidator, false);
             $uuid = uniqid();
-            $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
-            $this->userModel->createUser($uuid, $data['name'], $data['email'], $hashedPassword);
+            $this->userModel->createUser($uuid, $data['name'], $data['email'], $data['password']);
             Redirect::with('/', ['success' => 'User created successfully.']);
         } catch (\Exception $e) {
             Redirect::with('/user/create', ['error' => $e->getMessage()]);
@@ -62,8 +61,7 @@ class UserController extends BaseController
     {
         try {
             $data = $this->extractAndValidateData($this->userValidator, true);
-            $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
-            $this->userModel->updateUser($id, $data['name'], $data['email'], $hashedPassword);
+            $this->userModel->updateUser($id, $data['name'], $data['email'], $data['password']);
             Redirect::with('/', ['success' => 'User updated successfully.']);
         } catch (\Exception $e) {
             Redirect::with("/user/edit/$id", ['error' => $e->getMessage()]);
