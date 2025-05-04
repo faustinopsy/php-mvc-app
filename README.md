@@ -1,7 +1,7 @@
 # PHP MVC Application
 
 Esta é uma aplicação simples desenvolvida em PHP utilizando o padrão MVC (Model-View-Controller). O objetivo principal é gerenciar dados de usuários com foco em princípios de programação orientada a objetos e boas práticas de design de software. A aplicação implementa funcionalidades de CRUD (Criar, Ler, Atualizar, Excluir) para gerenciamento de usuários com a possibilidade de expandir com outros módulos, utilizando SQLite como banco de dados.
-
+A aplicação agora utiliza uma classe **Entidade** (`User`) para representar os dados do usuário, melhorando o encapsulamento e a organização do código.
 ---
 
 ## Estrutura do Projeto
@@ -13,6 +13,8 @@ php-mvc-app
 │   │   ├── UserController.php
 │   │   └── ApiUserController.php
 │   ├── Models
+│   │   └── UserModel.php
+│   ├── Entities
 │   │   └── UserModel.php
 │   ├── Views
 │   │   ├── templates
@@ -56,10 +58,12 @@ php-mvc-app
 - **Gerenciamento de Usuários**: Criar, ler, atualizar e excluir registros de usuários.
 - **Suporte a API**: Responder a requisições API com dados em formato JSON.
 - **Sistema de Rotas**: Gerenciamento de URLs com suporte a parâmetros dinâmicos.
-- **Renderização de Views**: Renderização dinâmica de templates com suporte a partials (cabeçalho e rodapé).
+- **Renderização de Views**: Renderização dinâmica de templates com suporte a partials (cabeçalho e rodapé) e uma função helper (`$h`) para escaping de HTML.
 - **Mensagens Flash**: Notificações para ações realizadas pelo usuário.
+- **Persistência de Formulários**: Mantém os dados preenchidos em formulários (exceto senhas) após erros de validação, usando mensagens flash para "old input".
 - **Modo Escuro**: Alternância entre temas claro e escuro com persistência via `localStorage`.
 - **Injeção de Dependências**: Uso de classes auxiliares como `UserValidator` para validações específicas.
+- **Uso de Entidades**: A classe `UserModel` retorna objetos `User` em vez de arrays, promovendo melhor encapsulamento.
 
 ---
 
@@ -68,7 +72,7 @@ php-mvc-app
 1. **Princípios SOLID**:
    - **Responsabilidade Única (SRP)**: Cada classe tem uma única responsabilidade. Por exemplo, `UserValidator` é responsável apenas por validações de usuários.
    - **Inversão de Dependência (DIP)**: Controladores dependem de abstrações (como `UserValidator`) em vez de implementações concretas.
-
+   - (Outros princípios como OCP, LSP, ISP também são considerados no design geral).
 2. **Composição sobre Herança**:
    - A lógica genérica é centralizada na `BaseController`, enquanto funcionalidades específicas são delegadas a classes auxiliares como `UserValidator`.
 
@@ -81,33 +85,46 @@ php-mvc-app
 5. **Padrão Template Method**:
    - A `BaseController` fornece métodos genéricos (`extractAndValidateData`, `jsonResponse`) que podem ser reutilizados ou estendidos por controladores específicos.
 
+6. **Padrão Entity**:
+   - A classe `App\Entities\User` representa um registro de usuário, encapsulando seus dados e getters.
+
 ---
 
 ## Como Funcionam as Mensagens Flash e Redirecionamentos
 
 ### Mensagens Flash
 As mensagens flash são usadas para exibir notificações temporárias ao usuário, como mensagens de sucesso ou erro. Elas são armazenadas na sessão e removidas automaticamente após serem exibidas.
-
-- **Definir uma Mensagem Flash**:
+- **Definir uma Mensagem Flash (Ex: Erro)**:
   ```php
   use App\Core\Flash;
 
-  Flash::set('flash_message', ['success' => 'Usuário criado com sucesso!']);
+  // A chave da sessão é definida em .env (FLASH_MESSAGE_KEY)
+  Flash::setMessage($_ENV['FLASH_MESSAGE_KEY'], ['error' => 'Senha inválida.']);
   ```
 
-- **Exibir uma Mensagem Flash na View**:
+- **Exibir Mensagens Flash na View**:
   ```php
-  <?php if ($message = \App\Core\Flash::get('flash_message')): ?>
-      <div class="flash-message">
-          <?php echo $message; ?>
+  <?php if ($flash = \App\Core\Flash::get($_ENV['FLASH_MESSAGE_KEY'])): ?>
+      <?php foreach ($flash as $type => $message): ?>
+      <div class="<?php echo $h($type); ?>"> <!-- Usa o helper $h para escapar a classe CSS -->
+          <?php echo $h($message); ?> <!-- Usa o helper $h para escapar a mensagem -->
       </div>
+      <?php endforeach; ?>
   <?php endif; ?>
   ```
+  *(Nota: A variável `$h` é uma função helper passada pelo Controller para aplicar `htmlspecialchars`)*
 
 ### Redirecionamentos
 A classe `Redirect` é usada para redirecionar o usuário para outra página, com suporte a mensagens flash.
 
-- **Redirecionar com Mensagem Flash**:
+- **Redirecionar com Mensagem Flash e "Old Input" (após erro de validação)**:
+  ```php
+  use App\Core\Redirect;
+
+  // Passa a mensagem de erro e os dados do $_POST para repopular o formulário
+  Redirect::with('/user/create', ['error' => 'Dados inválidos.'], $_POST);
+  ```
+- **Redirecionar com Mensagem Flash (após sucesso)**:
   ```php
   use App\Core\Redirect;
 
@@ -128,7 +145,7 @@ A classe `UserValidator` é responsável por validar os dados de entrada relacio
 - **Exemplo de Validação**:
   ```php
   use App\Validators\UserValidator;
-
+  // $userModel é uma instância de UserModel
   $validator = new UserValidator($userModel);
   $errors = $validator->validate($data);
 
@@ -140,7 +157,7 @@ A classe `UserValidator` é responsável por validar os dados de entrada relacio
 - **Regras de Validação**:
   - O nome deve ter entre 3 e 50 caracteres.
   - O e-mail deve ser válido e único.
-  - A senha deve ter pelo menos 6 caracteres.
+  - A senha deve ter pelo menos 6 caracteres (obrigatória na criação, opcional na atualização, mas validada se fornecida).
 
 ---
 
