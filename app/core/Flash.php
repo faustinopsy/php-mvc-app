@@ -12,11 +12,23 @@ class Flash {
     public static function get($type)
     {
         if (isset($_SESSION[$type])) {
-            foreach ($_SESSION[$type] as $key => $value) {
-                $message = $value;
-            }
+            $message = $_SESSION[$type];
             unset($_SESSION[$type]);
             return $message;
+        }
+        return null;
+    }
+    public static function setOldInput(string $key, array $input)
+    {
+        $_SESSION[$key] = $input;
+    }
+
+    public static function getOldInput(string $key): ?array
+    {
+        if (isset($_SESSION[$key])) {
+            $input = $_SESSION[$key];
+            unset($_SESSION[$key]);
+            return $input;
         }
         return null;
     }

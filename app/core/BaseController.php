@@ -22,10 +22,6 @@ abstract class BaseController
             throw new Exception(implode(' ', $errors));
         }
 
-        foreach ($data as $key => $value) {
-            $data[$key] = htmlspecialchars($value);
-        }
-
         return $data;
     }
 

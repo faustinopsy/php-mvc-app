@@ -3,6 +3,7 @@ namespace App\Models;
 
 use App\Config\Database;
 use PDO;
+use App\Entities\User;
 
 class UserModel
 {
@@ -41,7 +42,7 @@ class UserModel
 
     public function createUser($uuid, $name, $email, $password)
     {
-        $password = password_hash($password, PASSWORD_DEFAULT);
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
         $stmt = $this->db->prepare("INSERT INTO users (uuid, name, email, password) VALUES (:uuid, :name, :email, :password)");
         $stmt->bindParam(':uuid', $uuid);
         $stmt->bindParam(':name', $name);
@@ -53,26 +54,34 @@ class UserModel
     public function getAllUsers()
     {
         $stmt = $this->db->query("SELECT * FROM users");
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $stmt->fetchAll(PDO::FETCH_CLASS, User::class);
     }
 
     public function getUser($uuid)
     {
         $stmt = $this->db->prepare("SELECT * FROM users WHERE uuid = :uuid");
         $stmt->bindParam(':uuid', $uuid, PDO::PARAM_STR);
+        $stmt->setFetchMode(PDO::FETCH_CLASS, User::class);
         $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        return $stmt->fetch();
     }
 
-    public function updateUser($uuid, $name, $email, $password)
+    public function updateUser($uuid, $name, $email, $password = null)
     {
-        $password = password_hash($password, PASSWORD_DEFAULT);
-        $stmt = $this->db->prepare("UPDATE users SET name = :name, email = :email, password = :password WHERE uuid = :uuid");
+        if ($password !== null && $password !== '') {
+            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+            $stmt = $this->db->prepare("UPDATE users SET name = :name, email = :email, password = :password WHERE uuid = :uuid");
+            $stmt->bindParam(':password', $hashedPassword);
+        } else {
+            $stmt = $this->db->prepare("UPDATE users SET name = :name, email = :email WHERE uuid = :uuid");
+        }
+
         $stmt->bindParam(':uuid', $uuid);
         $stmt->bindParam(':name', $name);
         $stmt->bindParam(':email', $email);
-        $stmt->bindParam(':password', $password);
+
         return $stmt->execute();
+
     }
 
     public function deleteUser($uuid)

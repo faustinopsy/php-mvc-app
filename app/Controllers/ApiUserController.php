@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\UserModel;
+use App\Entities\User;
 use App\Core\BaseController;
 use App\Validators\UserValidator;
 class ApiUserController extends BaseController
@@ -21,10 +22,7 @@ class ApiUserController extends BaseController
         try {
             $user = $this->userModel->getUser($id);
             if ($user) {
-                $user['name'] = htmlspecialchars($user['name']);
-                $user['email'] = htmlspecialchars($user['email']);
-                unset($user['password']);
-                $this->jsonResponse(200, $user);
+                $this->jsonResponse(200, $user->toArray());
             } else {
                 $this->jsonResponse(404, ['error' => 'User not found']);
             }
@@ -37,12 +35,10 @@ class ApiUserController extends BaseController
     {
         try {
             $users = $this->userModel->getAllUsers();
-            foreach ($users as &$user) {
-                $user['name'] = htmlspecialchars($user['name']);
-                $user['email'] = htmlspecialchars($user['email']);
-                unset($user['password']);
-            }
-            $this->jsonResponse(200, $users);
+            $usersArray = array_map(function(User $user) {
+                return $user->toArray();
+            }, $users);
+            $this->jsonResponse(200, $usersArray);
         } catch (\Exception $e) {
             $this->jsonResponse(500, ['error' => 'An error occurred: ' . $e->getMessage()]);
         }
@@ -53,8 +49,7 @@ class ApiUserController extends BaseController
         try {
             $data = $this->extractAndValidateData($this->userValidator, false);
             $uuid = uniqid();
-            $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
-            $this->userModel->createUser($uuid, $data['name'], $data['email'], $hashedPassword);
+            $this->userModel->createUser($uuid, $data['name'], $data['email'], $data['password']);
             $this->jsonResponse(201, ['success' => 'User created successfully']);
         } catch (\Exception $e) {
             $this->jsonResponse(400, ['error' => $e->getMessage()]);
@@ -65,7 +60,8 @@ class ApiUserController extends BaseController
     {
         try {
             $data = $this->extractAndValidateData($this->userValidator, true);
-            $this->userModel->updateUser($id, $data['name'], $data['email'], $data['password']);
+            $passwordToUpdate = (!empty($data['password'])) ? $data['password'] : null;
+            $this->userModel->updateUser($id, $data['name'], $data['email'], $passwordToUpdate);
             $this->jsonResponse(200, ['success' => 'User updated successfully']);
         } catch (\Exception $e) {
             $this->jsonResponse(400, ['error' => $e->getMessage()]);

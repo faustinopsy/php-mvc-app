@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\UserModel;
 use App\Core\Redirect;
 use App\Core\View;
+use App\Entities\User;
 use App\Core\BaseController;
 use App\Validators\UserValidator;
 
@@ -22,12 +23,10 @@ class UserController extends BaseController
     public function index()
     {
         $users = $this->userModel->getAllUsers();
-        foreach ($users as &$user) {
-            $user['name'] = htmlspecialchars($user['name']);
-            $user['email'] = htmlspecialchars($user['email']);
-        }
-        unset($user['password']);
-        View::render('user/index', ['users' => $users]);
+        View::render('user/index', [
+            'users' => $users,
+            'h' => fn($str) => htmlspecialchars($str ?? '', ENT_QUOTES, 'UTF-8')
+        ]);
     }
 
     public function create()
@@ -43,18 +42,19 @@ class UserController extends BaseController
             $this->userModel->createUser($uuid, $data['name'], $data['email'], $data['password']);
             Redirect::with('/', ['success' => 'User created successfully.']);
         } catch (\Exception $e) {
-            Redirect::with('/user/create', ['error' => $e->getMessage()]);
+            Redirect::with('/user/create', ['error' => $e->getMessage()], $_POST);
         }
     }
 
     public function edit($id)
     {
         $user = $this->userModel->getUser($id);
-        if ($user) {
-            $user['name'] = htmlspecialchars($user['name']);
-            $user['email'] = htmlspecialchars($user['email']);
+        if (!$user) {
+            Redirect::with('/', ['error' => 'User not found.']);
+            return;
         }
-        View::render('user/edit', ['user' => $user]);
+        View::render('user/edit', ['user' => $user,
+            'h' => fn($str) => htmlspecialchars($str ?? '', ENT_QUOTES, 'UTF-8')]);
     }
 
     public function update($id)
@@ -62,7 +62,9 @@ class UserController extends BaseController
         try {
             $data = $this->extractAndValidateData($this->userValidator, true, $_POST);
             $this->userModel->updateUser($id, $data['name'], $data['email'], $data['password']);
-            Redirect::with('/', ['success' => 'User updated successfully.']);
+            $passwordToUpdate = (!empty($data['password'])) ? $data['password'] : null;
+            $this->userModel->updateUser($id, $data['name'], $data['email'], $passwordToUpdate);
+            Redirect::with('/', ['success' => 'User updated successfully.']); // Corrected key
         } catch (\Exception $e) {
             Redirect::with("/user/edit/$id", ['error' => $e->getMessage()]);
         }
@@ -72,7 +74,7 @@ class UserController extends BaseController
     {
         try {
             $this->userModel->deleteUser($id);
-            Redirect::with('/',['success', 'User deleted successfully.']);
+            Redirect::with('/',['success' => 'User deleted successfully.']); // Corrected key
         } catch (\Exception $e) {
             Redirect::with('/', ['error' => 'An error occurred: ' . $e->getMessage()]);
         }
@@ -81,10 +83,11 @@ class UserController extends BaseController
     public function show($id)
     {
         $user = $this->userModel->getUser($id);
-        if ($user) {
-            $user['name'] = htmlspecialchars($user['name']);
-            $user['email'] = htmlspecialchars($user['email']);
+        if (!$user) {
+            Redirect::with('/', ['error' => 'User not found.']);
+            return;
         }
-        View::render('user/show', ['user' => $user]);
+        View::render('user/show', ['user' => $user,
+            'h' => fn($str) => htmlspecialchars($str ?? '', ENT_QUOTES, 'UTF-8')]);
     }
 }

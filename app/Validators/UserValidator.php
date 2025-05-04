@@ -31,10 +31,14 @@ class UserValidator
             $errors[] = 'Email already exists.';
         }
 
-        if (empty($data['password'])) {
-            $errors[] = 'Password is required.';
-        } elseif (strlen($data['password']) < 6) {
-            $errors[] = 'Password must be at least 6 characters long.';
+        if (!$isUpdate) { 
+            if (empty($data['password'])) {
+                $errors[] = 'Password is required.';
+            } elseif (strlen($data['password']) < 6) {
+                $errors[] = 'Password must be at least 6 characters long.';
+            }
+        } elseif (!empty($data['password']) && strlen($data['password']) < 6) { // Updating and password provided
+            $errors[] = 'Password must be at least 6 characters long if provided.';
         }
 
         return $errors;
