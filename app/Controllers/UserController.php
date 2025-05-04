@@ -38,7 +38,7 @@ class UserController extends BaseController
     public function store()
     {
         try {
-            $data = $this->extractAndValidateData($this->userValidator, false);
+            $data = $this->extractAndValidateData($this->userValidator, false, $_POST);
             $uuid = uniqid();
             $this->userModel->createUser($uuid, $data['name'], $data['email'], $data['password']);
             Redirect::with('/', ['success' => 'User created successfully.']);
@@ -60,7 +60,7 @@ class UserController extends BaseController
     public function update($id)
     {
         try {
-            $data = $this->extractAndValidateData($this->userValidator, true);
+            $data = $this->extractAndValidateData($this->userValidator, true, $_POST);
             $this->userModel->updateUser($id, $data['name'], $data['email'], $data['password']);
             Redirect::with('/', ['success' => 'User updated successfully.']);
         } catch (\Exception $e) {
