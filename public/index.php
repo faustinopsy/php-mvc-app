@@ -2,8 +2,12 @@
 session_start();
 
 require_once '../vendor/autoload.php';
-require_once './routes.php';
 use App\Core\Router;
+$router = new Router();
+
+require_once './web.php';
+require_once './api.php';
+
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__. '/../');
 $dotenv->load();
 

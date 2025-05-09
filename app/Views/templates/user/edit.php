@@ -1,7 +1,7 @@
 <div class="container">
 <h1>Editar Usuário</h1>
 <?php
-require_once  __DIR__."/../../errors/mensagens.php";
+require_once  __DIR__."/../../components/alerta.php";
 ?>
 <form action="/user/update/<?php echo $h($user->getUuid()); ?>" method="POST">
     <label for="name">Nome:</label>
