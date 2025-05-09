@@ -30,6 +30,6 @@ class Flash {
             unset($_SESSION[$key]);
             return $input;
         }
-        return null;
+        return [];
     }
 }

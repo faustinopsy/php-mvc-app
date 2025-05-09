@@ -1,13 +1,8 @@
 <div class="container">
     <h1>Detalhes do Usuário</h1>
-
-    <?php if ($flash = \App\Core\Flash::get($_ENV['FLASH_MESSAGE_KEY'])): ?>
-        <?php foreach ($flash as $type => $message): ?>
-        <div class="<?php echo $h($type); ?>">
-            <?php echo $h($message); ?>
-        </div>
-        <?php endforeach; ?>
-    <?php endif; ?>
+    <?php
+        require_once  __DIR__."/../mensagens.php";
+    ?>
 
     <p><strong>UUID:</strong> <?php echo $h($user->getUuid()); ?></p>
     <p><strong>Nome:</strong> <?php echo $h($user->getName()); ?></p>
