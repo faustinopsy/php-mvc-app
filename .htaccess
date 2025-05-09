@@ -1,0 +1,14 @@
+# Ativa mecanismo de rescrita do Apache
+RewriteEngine On
+
+# Define o caminho base para todas as regras
+RewriteBase /
+
+# Libera o cabeçalho Authorization para PHP
+RewriteCond %{HTTP:Authorization} ^(.*)
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%1]
+
+# Regras de roteamento da aplicação
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
