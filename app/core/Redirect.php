@@ -1,6 +1,6 @@
 <?php
-namespace App\core;
-use App\core\Flash;
+namespace App\Core;
+use App\Core\Flash;
 class Redirect {
     public static function to($location) {
         header("Location: " . $location);

@@ -1,7 +1,7 @@
 <div class="container">
 <h1>Editar Usuário</h1>
 <?php
-require_once  __DIR__."/../mensagens.php";
+require_once  __DIR__."/../../errors/mensagens.php";
 ?>
 <form action="/user/update/<?php echo $h($user->getUuid()); ?>" method="POST">
     <label for="name">Nome:</label>
@@ -13,7 +13,7 @@ require_once  __DIR__."/../mensagens.php";
     <label for="password">Senha:</label>
     <input type="password" id="password" name="password">
     <br>
-    <button type="submit">Atualizar</button>
+    <button type="submit" class="button">Atualizar</button>
 </form>
 <a href="/">Voltar</a>
 </div>

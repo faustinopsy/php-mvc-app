@@ -1,6 +1,6 @@
 <?php
 namespace App;
-use App\core\Router;
+use App\Core\Router;
 $router = new Router();
 
 // Rotas para páginas

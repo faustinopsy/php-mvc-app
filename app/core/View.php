@@ -1,5 +1,5 @@
 <?php
-namespace App\core;
+namespace App\Core;
 
 class View {
     private $templatePath;

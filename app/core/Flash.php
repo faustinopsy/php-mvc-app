@@ -1,5 +1,5 @@
 <?php
-namespace App\core;
+namespace App\Core;
 
 class Flash {
     public static function set($type,$message)

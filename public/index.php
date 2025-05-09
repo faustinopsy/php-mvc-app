@@ -3,7 +3,7 @@ session_start();
 
 require_once '../vendor/autoload.php';
 require_once './routes.php';
-use App\core\Router;
+use App\Core\Router;
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__. '/../');
 $dotenv->load();
 

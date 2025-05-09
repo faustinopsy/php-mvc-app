@@ -1,7 +1,7 @@
 <div class="container">
 <h1>Criar Usuário</h1>
 <?php
-require_once  __DIR__."/../mensagens.php";
+require_once  __DIR__."/../../errors/mensagens.php";
 ?>
 
 <form action="/user/store" method="POST">
@@ -14,7 +14,7 @@ require_once  __DIR__."/../mensagens.php";
     <label for="password">Senha:</label>
     <input type="password" id="password" name="password" required>
     <br>
-    <button type="submit">Criar</button>
+    <button type="submit" class="button">Criar</button>
 </form>
 <a href="/">Voltar</a>
 </div>
