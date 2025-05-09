@@ -1,7 +1,7 @@
 <div class="container">
 <h1>Criar Usuário</h1>
 <?php
-require_once  __DIR__."/../../errors/mensagens.php";
+require_once  __DIR__."/../../components/alerta.php";
 ?>
 
 <form action="/user/store" method="POST">

@@ -1,7 +1,7 @@
 <div class="container">
     <h1>Detalhes do Usuário</h1>
     <?php
-        require_once  __DIR__."/../../errors/mensagens.php";
+        require_once  __DIR__."/../../components/alerta.php";
     ?>
 
     <p><strong>UUID:</strong> <?php echo $h($user->getUuid()); ?></p>

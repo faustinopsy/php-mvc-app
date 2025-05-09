@@ -1,7 +1,7 @@
 <div class="container">
 <h1>Lista de Usuários</h1>
 <?php
-require_once  __DIR__."/../../errors/mensagens.php";
+require_once  __DIR__."/../../components/alerta.php";
 ?>
 <table border="10.4">
     <thead>
