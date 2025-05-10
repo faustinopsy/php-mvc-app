@@ -18,18 +18,18 @@ require_once  __DIR__."/../../components/alerta.php";
                 <td><?php echo $h($user->getUuid()); ?></td>
                 <td><?php echo $h($user->getName()); ?></td>
                 <td><?php echo $h($user->getEmail()); ?></td>
-                <td>
-                    <a href="/user/view/<?php echo $h($user->getUuid()); ?>" >Ver</a>
-                    <a href="/user/edit/<?php echo $h($user->getUuid()); ?>" >Editar</a>
+                <td id="actions">
+                    <a href="/user/view/<?php echo $h($user->getUuid()); ?>" class="button secondary">Ver</a>
+                    <a href="/user/edit/<?php echo $h($user->getUuid()); ?>" class="button primary">Editar</a>
                     <form action="/user/delete/<?php echo $h($user->getUuid()); ?>" method="POST" style="display:block;">
-                           <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                             <input type="hidden" name="id" value="<?php echo $h($user->getUuid()); ?>">
-                            <button type="submit" class="button">Excluir</button>
+                            <button type="submit" class="button error">Excluir</button>
                     </form>
                 </td>
             </tr>
         <?php endforeach; ?>
     </tbody>
 </table>
-<a href="/user/create">Criar Novo Usuário</a>
+<a href="/user/create" class="button success">Criar Novo Usuário</a>
 </div>

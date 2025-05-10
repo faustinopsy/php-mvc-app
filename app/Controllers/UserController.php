@@ -64,7 +64,7 @@ class UserController extends BaseController
             $this->userModel->updateUser($id, $data['name'], $data['email'], $data['password']);
             $passwordToUpdate = (!empty($data['password'])) ? $data['password'] : null;
             $this->userModel->updateUser($id, $data['name'], $data['email'], $passwordToUpdate);
-            Redirect::with('/', ['success' => 'User updated successfully.']); // Corrected key
+            Redirect::with('/', ['success' => 'User updated successfully.']); 
         } catch (\Exception $e) {
             Redirect::with("/user/edit/$id", ['error' => $e->getMessage()]);
         }
@@ -78,7 +78,7 @@ class UserController extends BaseController
         }
         try {
             $this->userModel->deleteUser($id);
-            Redirect::with('/',['success' => 'User deleted successfully.']); // Corrected key
+            Redirect::with('/',['success' => 'User deleted successfully.']); 
         } catch (\Exception $e) {
             Redirect::with('/', ['error' => 'An error occurred: ' . $e->getMessage()]);
         }
