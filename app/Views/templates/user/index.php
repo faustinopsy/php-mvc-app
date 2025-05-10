@@ -3,7 +3,7 @@
 <?php
 require_once  __DIR__."/../../components/alerta.php";
 ?>
-<table border="10.4">
+<table border="10.4" id="userTable">
     <thead>
         <tr>
             <th>UUID</th>
@@ -18,13 +18,13 @@ require_once  __DIR__."/../../components/alerta.php";
                 <td><?php echo $h($user->getUuid()); ?></td>
                 <td><?php echo $h($user->getName()); ?></td>
                 <td><?php echo $h($user->getEmail()); ?></td>
-                <td id="actions">
+                <td id="actions" >
                     <a href="/user/view/<?php echo $h($user->getUuid()); ?>" class="button secondary">Ver</a>
                     <a href="/user/edit/<?php echo $h($user->getUuid()); ?>" class="button primary">Editar</a>
-                    <form action="/user/delete/<?php echo $h($user->getUuid()); ?>" method="POST" style="display:block;">
+                    <form id="deleteForm"  action="/user/delete/<?php echo $h($user->getUuid()); ?>" method="POST" style="display:block;" >
                             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                             <input type="hidden" name="id" value="<?php echo $h($user->getUuid()); ?>">
-                            <button type="submit" class="button error">Excluir</button>
+                            <button type="submit" class="button error delete-button">Excluir</button>
                     </form>
                 </td>
             </tr>
@@ -33,3 +33,27 @@ require_once  __DIR__."/../../components/alerta.php";
 </table>
 <a href="/user/create" class="button success">Criar Novo Usuário</a>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', ()=>{
+    const userTable = document.getElementById('userTable');
+    if (userTable) {
+        userTable.addEventListener('click', function(event) {
+        const target = event.target;
+
+            if (target.tagName === 'BUTTON' && target.type === 'submit' && target.classList.contains('delete-button')) {
+                const form = target.closest('form');
+
+                if (form) {
+                    event.preventDefault();
+                    const confirmed = confirm("Tem certeza que deseja excluir este usuário?");
+                    if (confirmed) {
+                        form.submit();
+                    }
+                }
+            }
+        });
+    } else {
+        console.error("Elemento #userTable não encontrado. O script de confirmação não foi aplicado.");
+    }
+});
+</script>
