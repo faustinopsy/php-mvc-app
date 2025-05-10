@@ -21,7 +21,11 @@ require_once  __DIR__."/../../components/alerta.php";
                 <td>
                     <a href="/user/view/<?php echo $h($user->getUuid()); ?>" >Ver</a>
                     <a href="/user/edit/<?php echo $h($user->getUuid()); ?>" >Editar</a>
-                    <a href="/user/delete/<?php echo $h($user->getUuid()); ?>" onclick="return confirm('Tem certeza que deseja excluir este usuário?');">Excluir</a>
+                    <form action="/user/delete/<?php echo $h($user->getUuid()); ?>" method="POST" style="display:block;">
+                           <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                            <input type="hidden" name="id" value="<?php echo $h($user->getUuid()); ?>">
+                            <button type="submit" class="button">Excluir</button>
+                    </form>
                 </td>
             </tr>
         <?php endforeach; ?>

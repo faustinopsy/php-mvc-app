@@ -1,13 +1,17 @@
 <?php
 
 namespace App\Core;
-
+use App\Core\Redirect;
 use Exception;
 
 abstract class BaseController
 {
     protected function extractAndValidateData($validator, $isUpdate=false ,$data = null)
     {
+        if ($_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+            Redirect::with('/', ['error' => 'Token csrf inválido.']);
+            exit;
+        }
         if (!$data) {
             $data = json_decode(file_get_contents('php://input'), true);
         }

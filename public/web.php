@@ -9,4 +9,4 @@ $router->addRoute('GET', '/user/view/{id}', 'UserController', 'show');
 
 $router->addRoute('POST', '/user/store', 'UserController', 'store');
 $router->addRoute('POST', '/user/update/{id}', 'UserController', 'update');
-$router->addRoute('GET', '/user/delete/{id}', 'UserController', 'delete');
+$router->addRoute('POST', '/user/delete/{id}', 'UserController', 'delete');

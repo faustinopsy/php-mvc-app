@@ -72,6 +72,10 @@ class UserController extends BaseController
 
     public function delete($id)
     {
+        if ($_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+            Redirect::with('/', ['error' => 'Token csrf inválido.']);
+            exit;
+        }
         try {
             $this->userModel->deleteUser($id);
             Redirect::with('/',['success' => 'User deleted successfully.']); // Corrected key

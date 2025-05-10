@@ -5,6 +5,7 @@ require_once  __DIR__."/../../components/alerta.php";
 ?>
 
 <form action="/user/store" method="POST">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <label for="name">Nome:</label>
     <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($oldInput['name'] ?? ''); ?>" required>
     <br>
